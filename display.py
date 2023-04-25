@@ -1,31 +1,35 @@
-import board
 import digitalio
 import adafruit_character_lcd.character_lcd as characterlcd
 
-lcd_rs = digitalio.DigitalInOut(board.GP9)
-lcd_en = digitalio.DigitalInOut(board.GP8)
+class MyDisplay:
+    lcd: characterlcd.Character_LCD_Mono
+    
+    columns = 16
+    rows = 2
 
-lcd_d7 = digitalio.DigitalInOut(board.GP13)
-lcd_d6 = digitalio.DigitalInOut(board.GP12)
-lcd_d5 = digitalio.DigitalInOut(board.GP11)
-lcd_d4 = digitalio.DigitalInOut(board.GP10)
+    msg = ""
 
-lcd_columns = 16
-lcd_rows = 2
+    def __init__(self, rs: digitalio.Pin, en: digitalio.Pin, d4: digitalio.Pin, d5: digitalio.Pin, d6: digitalio.Pin, d7: digitalio.Pin):
+        self.lcd = characterlcd.Character_LCD_Mono(
+                self.__pin(rs),
+                self.__pin(en),
+                self.__pin(d4),
+                self.__pin(d5),
+                self.__pin(d6),
+                self.__pin(d7),
+                self.columns, self.rows)
 
-lcd = characterlcd.Character_LCD_Mono(lcd_rs, lcd_en, lcd_d4, lcd_d5, lcd_d6, lcd_d7, lcd_columns, lcd_rows)
+    def write(self, line1 = "", line2 = ""):
+        msg = self.__parse(line1) + '\n' + self.__parse(line2)
+        self.msg = msg.replace('\n', '\\n')
+        self.lcd.message = msg
 
-def pad(str):
-    return str.center(lcd_columns)
+    def __parse(self, line):
+        if (len(line) > self.columns):
+            raise TypeError("To many characters in line")
+        return line.center(self.columns)
 
-def write(l1 = "", l2 = ""):
-    if (len(l1) > lcd_columns):
-        print('invalid length', l1)
-        return
-    if (len(l2) > lcd_columns):
-        print('invalid length', l2)
-        return
-    msg = pad(l1) + '\n' + pad(l2)
-    lcd.message = msg
-    return msg
+    def __pin(self, pin: digitalio.Pin):
+        return digitalio.DigitalInOut(pin)
+        
 
