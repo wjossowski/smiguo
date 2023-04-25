@@ -1,45 +1,71 @@
-<html>
-  <head>
-    <script src="//unpkg.com/alpinejs" defer></script>
-  </head>
-  <body>
-    <h1>Siemanko</h1>
-    <h2>Witaj w komnacie tajemnic</h2>
-    <div x-data="boardData()" x-init="init()">
-      <pre x-text="text"></pre>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="//unpkg.com/alpinejs" defer></script>
+</head>
+
+<body>
+  <h1>Siemanko</h1>
+  <div x-data="boardData()" x-init="init()">
+    <div>
+      <h3>ZAKRĘĆ ŚMIGŁEM ZIOMUŚ</h3>
       <p>
-        <button @click="await setAngle(angle - 180)">-180</button>
-        <button @click="await setAngle(angle - 90)">-90</button>
-        <button @click="await setAngle(angle - 60)">-60</button>
-        <button @click="await setAngle(angle - 30)">-30</button>
-        <button @click="await setAngle(angle - 15)">-15</button>
+        <button @click="setAngle(angle - 180)">-180</button>
+        <button @click="setAngle(angle - 90)">-90</button>
+        <button @click="setAngle(angle - 60)">-60</button>
+        <button @click="setAngle(angle - 30)">-30</button>
+        <button @click="setAngle(angle - 15)">-15</button>
       </p>
       <p>
-        <button @click="await setAngle(90)">RESET (90)</button>
+        <button @click="setAngle(90)">RESET (90)</button>
       </p>
       <p>
-        <button @click="await setAngle(angle + 15)">+15</button>
-        <button @click="await setAngle(angle + 30)">+30</button>
-        <button @click="await setAngle(angle + 60)">+60</button>
-        <button @click="await setAngle(angle + 90)">+90</button>
-        <button @click="await setAngle(angle + 180)">+180</button>
+        <button @click="setAngle(angle + 15)">+15</button>
+        <button @click="setAngle(angle + 30)">+30</button>
+        <button @click="setAngle(angle + 60)">+60</button>
+        <button @click="setAngle(angle + 90)">+90</button>
+        <button @click="setAngle(angle + 180)">+180</button>
       </p>
     </div>
-    <script>
-      function boardData() {
-        return {
-          angle: 90,
-          text: "loading...",
-          setAngle(a) { fetch('/motor?a=' + a, { method: "POST" }) },
-          getData() { fetch('/data').then(r => r.json()).then(data => {
-              console.log(data)
-              this.angle = data.angle
-              this.text = data.text
-            })
-          },
-          init() { setInterval(() => this.getData(), 4000) }
-        }
+    <div>
+      <h3>Wyświetlałke</h3>
+      <p>Akat tera:</p>
+      <pre x-text="text"></pre>
+      <p>Zmień se na:</p>
+      <input type="text" x-model="line1" maxlength="16" placeholder="Pierwsza Linia" />
+      <input type="text" x-model="line2" maxlength="16" placeholder="Druga Linia" />
+      <p>
+        <button @click="setText()">Send</button>
+      </p>
+    </div>
+  </div>
+  <script>
+    function boardData() {
+      return {
+        angle: 90,
+        text: "loading...",
+        line1: "",
+        line2: "",
+        setAngle(a) { fetch('/motor?a=' + a, { method: "POST" }) },
+        setText() {
+          fetch('/text?l1=' + this.line1 + '&l2=' + this.line2, { method: "POST" })
+        },
+        getData() {
+          fetch('/data').then(r => r.json()).then(data => {
+            console.log(data)
+            this.angle = data.angle
+            this.text = data.text
+          })
+        },
+        init() { setInterval(() => this.getData(), 4000) }
       }
-    </script>
-  </body>
+    }
+  </script>
+</body>
+
 </html>

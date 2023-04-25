@@ -29,12 +29,22 @@ class Controller:
                 self.motor.set_position(angle)
                 addr, _ = request.client_address
                 self.update_display(addr)
-                response.send(f"Rotor position set to {angle}", angle)
+                response.send()
 
         @self.server.route("/data", method=HTTPMethod.GET)
         def r_data(request:HTTPRequest):
             with HTTPResponse(request, content_type=MIMEType.TYPE_JSON) as response:
                 response.send(f'{{ "angle": {self.motor.angle}, "text": "{self.display.msg}" }}')
+
+        @self.server.route("/text", method=HTTPMethod.POST)
+        def r_display(request: HTTPRequest):
+            line1 = request.query_params.get("l1")
+            line2 = request.query_params.get("l2")
+            with HTTPResponse(request, content_type=MIMEType.TYPE_JSON) as response:
+                print(line1, line2, 'HEHEHE   ')
+                self.display.write(line1, line2)
+                response.send()
+
         print("starting server..")
         return self
     
